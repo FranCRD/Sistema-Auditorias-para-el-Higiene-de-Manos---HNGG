@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#075985">
+  <title>Comparativa de reportes · Higiene de manos</title>
+  <link rel="stylesheet" href="comun.css?v=20261109-1">
+  <link rel="stylesheet" href="comparativa.css?v=20261112-5">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+</head>
+<body>
+  <header class="app-header">
+    <div class="app-header__inner">
+      <a class="brand" href="home.html" aria-label="Inicio">
+        <span class="brand__logo"><img src="images/ccss.jpg" alt="CCSS"></span>
+        <span class="brand__text">
+          <span class="brand__name">Auditoría de Higiene de Manos</span>
+          <span class="brand__tag">Higiene de Manos · OMS</span>
+        </span>
+      </a>
+      <button class="nav-mobile-toggle" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobile-nav-panel">
+        <span class="material-symbols-outlined">menu</span>
+      </button>
+      <nav class="header-navigation" aria-label="Navegación principal">
+        <a class="btn btn--ghost" href="home.html"><span class="material-symbols-outlined">home</span><span class="btn__label">Inicio</span></a>
+        <a class="btn btn--ghost" href="index.html"><span class="material-symbols-outlined">checklist</span><span class="btn__label">Observaciones</span></a>
+        <a class="btn btn--ghost" href="dashboard.html"><span class="material-symbols-outlined">analytics</span><span class="btn__label">Reportes</span></a>
+        <a class="btn btn--active" href="comparativa.html" aria-current="page"><span class="material-symbols-outlined">compare_arrows</span><span class="btn__label">Comparativa</span></a>
+        <a class="btn btn--ghost" href="admin.php" id="admin-link" hidden><span class="material-symbols-outlined">shield_person</span><span class="btn__label">Administración</span></a>
+        <a class="btn btn--ghost" href="perfil.html"><span class="material-symbols-outlined">account_circle</span><span class="btn__label">Mi perfil</span></a>
+      </nav>
+      <div class="mobile-nav-panel" id="mobile-nav-panel" hidden></div>
+      <div class="header-profile">
+        <div class="user">
+          <span class="user__name" id="user-name">Usuario</span>
+          <div class="user__avatar"><span class="material-symbols-outlined">person</span></div>
+          <button id="logout-btn" type="button" class="icon-btn" title="Cerrar sesión" aria-label="Cerrar sesión">
+            <span class="material-symbols-outlined">logout</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="comparison-page" id="comparison-content" hidden>
+    <section class="comparison-hero">
+      <div>
+        <span class="eyebrow"><span class="material-symbols-outlined">monitoring</span> ANALÍTICA IAAS</span>
+        <h1>Comparativa de reportes</h1>
+        <p>Elige un área y dos períodos para ver cómo cambió el cumplimiento.</p>
+      </div>
+      <div class="hero-actions">
+        <button class="button button--light" id="export-excel" type="button" disabled><span class="material-symbols-outlined">table_view</span> Exportar Excel</button>
+        <button class="button button--light" id="export-pdf" type="button" disabled><span class="material-symbols-outlined">picture_as_pdf</span> Exportar PDF</button>
+      </div>
+    </section>
+
+    <section class="panel controls-panel" aria-labelledby="controls-title">
+      <div class="section-heading">
+        <div><span class="section-kicker">COMIENZA AQUÍ</span><h2 id="controls-title">¿Qué deseas comparar?</h2></div>
+        <span class="live-label"><i></i> Los resultados se actualizan automáticamente</span>
+      </div>
+      <div class="compare-form-grid">
+        <label class="field field--full" for="filter-area">
+          <span>Área de atención</span>
+          <select id="filter-area">
+            <option value="">Todas las áreas</option>
+            <option>I Este</option>
+            <option>II Este</option>
+            <option>I Oeste</option>
+            <option>II Oeste</option>
+            <option>UCI</option>
+          </select>
+        </label>
+        <div class="compare-period-group">
+          <span class="compare-period-title">Período Base</span>
+          <div class="compare-period-dates">
+            <label class="field" for="period-a-from"><span>Desde</span><input id="period-a-from" type="date" required></label>
+            <label class="field" for="period-a-to"><span>Hasta</span><input id="period-a-to" type="date" required></label>
+          </div>
+        </div>
+        <div class="compare-period-group">
+          <span class="compare-period-title">Período a Comparar</span>
+          <div class="compare-period-dates">
+            <label class="field" for="period-b-from"><span>Desde</span><input id="period-b-from" type="date" required></label>
+            <label class="field" for="period-b-to"><span>Hasta</span><input id="period-b-to" type="date" required></label>
+          </div>
+        </div>
+      </div>
+      <div class="comparison-explainer" aria-live="polite">
+        <span class="material-symbols-outlined" aria-hidden="true">info</span>
+        <p id="comparison-explainer-text">Selecciona un área y los dos períodos de fechas.</p>
+      </div>
+      <p class="field__hint" id="validation-hint" role="alert" hidden></p>
+    </section>
+
+    <div class="notice" id="comparison-message" role="status" aria-live="polite" hidden></div>
+    <section id="results" hidden>
+      <div class="result-heading">
+        <div><span class="section-kicker">RESULTADOS</span><h2>Así cambió el cumplimiento</h2></div>
+        <p id="filter-summary"></p>
+      </div>
+      <section id="findings" class="findings-panel" aria-labelledby="findings-title" hidden>
+        <div class="findings-panel__header">
+          <span class="material-symbols-outlined" aria-hidden="true">lightbulb</span>
+          <h2 id="findings-title">Hallazgos clave</h2>
+        </div>
+        <ul class="findings-list" id="findings-list"></ul>
+      </section>
+      <div class="data-note" id="data-note" role="status" aria-live="polite" hidden></div>
+      <div class="kpi-grid" id="kpi-grid"></div>
+      <div class="panel chart-panel">
+        <div class="section-heading"><div><span class="section-kicker">VISTA RÁPIDA</span><h2>Cumplimiento global</h2></div><span class="chart-note">Meta institucional: 80%</span></div>
+        <div class="chart-legend" id="chart-legend"></div>
+        <div class="chart" id="trend-chart" role="img" aria-label="Comparación del cumplimiento global entre períodos"></div>
+      </div>
+      <div class="panel table-panel">
+        <div class="section-heading"><div><span class="section-kicker">DETALLE</span><h2>Por momento OMS</h2></div><span class="table-hint">Diferencia en puntos porcentuales</span></div>
+        <div class="table-wrap"><table class="comparison-table"><thead id="moments-head"></thead><tbody id="moments-body"></tbody></table></div>
+      </div>
+      <details class="panel details-panel">
+        <summary><span><span class="section-kicker">MÁS DETALLE</span><strong>Ver resultados por área y categoría profesional</strong></span><span class="material-symbols-outlined">expand_more</span></summary>
+        <div class="detail-tables">
+          <div class="table-panel"><h3>Por departamento</h3><div class="table-wrap"><table class="comparison-table"><thead id="area-head"></thead><tbody id="area-body"></tbody></table></div></div>
+          <div class="table-panel"><h3>Por categoría profesional</h3><div class="table-wrap"><table class="comparison-table"><thead id="category-head"></thead><tbody id="category-body"></tbody></table></div></div>
+        </div>
+      </details>
+      <p class="method-note"><span class="material-symbols-outlined">calculate</span><span><strong>Cómo se calcula:</strong> cumplimiento = (lavado + solución alcohólica) ÷ oportunidades con respuesta. La diferencia se expresa en puntos porcentuales; los momentos sin respuesta no entran en el cálculo.</span></p>
+    </section>
+    <footer class="comparison-footer">Fuente: Comité de IAAS HNGG · Protocolo de Observación Directa OMS, 5 momentos</footer>
+  </main>
+  <p class="access-error" id="access-error" role="alert" hidden></p>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+  <script src="comun.js?v=20261105-2"></script>
+  <script src="comparativa.js?v=20261112-4"></script>
+</body>
+</html>

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Perfil — Auditoría Higiene de Manos</title>
+  <script>
+    if (!sessionStorage.getItem('hm_user')) {
+      window.location.replace('login.html');
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="comun.css?v=20261105-4">
+  <link rel="stylesheet" href="perfil.css?v=20261111-1">
+</head>
+<body>
+  <header class="app-header">
+    <div class="app-header__inner">
+      <div class="brand">
+        <div class="brand__logo">
+          <img src="images/ccss.jpg" alt="CCSS">
+        </div>
+        <div class="brand__text">
+          <span class="brand__name">Auditoría de Higiene de Manos</span>
+          <span class="brand__tag">Higiene de Manos · OMS</span>
+        </div>
+      </div>
+
+      <button class="nav-mobile-toggle" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobile-nav-panel">
+        <span class="material-symbols-outlined">menu</span>
+      </button>
+
+      <nav class="header-navigation" aria-label="Navegación principal">
+        <a class="btn btn--ghost" href="home.html">
+          <span class="material-symbols-outlined">home</span>
+          <span class="btn__label">Inicio</span>
+        </a>
+        <a class="btn btn--ghost" href="index.html">
+          <span class="material-symbols-outlined">checklist</span>
+          <span class="btn__label">Observaciones</span>
+        </a>
+        <a class="btn btn--ghost" href="dashboard.html" id="dashboard-link" hidden>
+          <span class="material-symbols-outlined">analytics</span>
+          <span class="btn__label">Reportes</span>
+        </a>
+        <a class="btn btn--ghost" href="admin.php" id="admin-link" hidden>
+          <span class="material-symbols-outlined">shield_person</span>
+          <span class="btn__label">Administración</span>
+        </a>
+        <a class="btn btn--active" href="perfil.html" aria-current="page">
+          <span class="material-symbols-outlined">account_circle</span>
+          <span class="btn__label">Mi perfil</span>
+        </a>
+      </nav>
+      <div class="mobile-nav-panel" id="mobile-nav-panel" hidden></div>
+
+      <div class="header-profile">
+        <div class="user">
+          <span class="user__name" id="user-name">Usuario</span>
+          <div class="user__avatar">
+            <span class="material-symbols-outlined">person</span>
+          </div>
+          <button id="logout-btn" type="button" class="icon-btn" title="Cerrar sesión" aria-label="Cerrar sesión">
+            <span class="material-symbols-outlined">logout</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container perfil">
+    <section class="profile-hero" aria-labelledby="profile-hero-title">
+      <div class="profile-hero__avatar" aria-hidden="true">
+        <span class="profile-hero__initials" id="perfil-iniciales">U</span>
+      </div>
+
+      <div class="profile-hero__info">
+        <span class="profile-hero__eyebrow">Mi Perfil</span>
+        <h1 class="profile-hero__name" id="perfil-nombre-completo">—</h1>
+        <p class="profile-hero__email">
+          <span class="material-symbols-outlined">mail</span>
+          <span id="perfil-correo">—</span>
+        </p>
+        <div class="profile-hero__badges">
+          <span class="badge badge--role badge--role--observer" id="perfil-rol-badge">
+            <span class="material-symbols-outlined" id="perfil-rol-icon">visibility</span>
+            <span id="perfil-rol-label">Observador</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="profile-hero__actions">
+        <a class="btn btn--ghost" href="home.html">
+          <span class="material-symbols-outlined">home</span>
+          <span class="btn__label">Volver al inicio</span>
+        </a>
+      </div>
+    </section>
+
+    <div class="perfil-grid">
+      <section class="card perfil-card" aria-labelledby="datos-title">
+        <header class="card__header">
+          <div>
+            <h2 class="card__title" id="datos-title">Datos personales</h2>
+            <p class="card__subtitle">Información registrada en el sistema institucional.</p>
+          </div>
+          <span class="chip chip--neutral">
+            <span class="material-symbols-outlined">badge</span>
+            Solo lectura
+          </span>
+        </header>
+
+        <dl class="data-list">
+          <div class="data-list__row">
+            <dt class="data-list__label">Nombre completo</dt>
+            <dd class="data-list__value" id="dato-nombre">—</dd>
+          </div>
+          <div class="data-list__row">
+            <dt class="data-list__label">Cédula / identificación</dt>
+            <dd class="data-list__value" id="dato-cedula">—</dd>
+          </div>
+          <div class="data-list__row">
+            <dt class="data-list__label">Correo institucional</dt>
+            <dd class="data-list__value" id="dato-correo">—</dd>
+          </div>
+          <div class="data-list__row">
+            <dt class="data-list__label">Género</dt>
+            <dd class="data-list__value" id="dato-genero">—</dd>
+          </div>
+          <div class="data-list__row">
+            <dt class="data-list__label">Rol en el sistema</dt>
+            <dd class="data-list__value">
+              <span class="badge badge--role badge--role--observer" id="dato-rol-badge">
+                <span class="material-symbols-outlined" id="dato-rol-icon">visibility</span>
+                <span id="dato-rol-label">Observador</span>
+              </span>
+            </dd>
+          </div>
+          <div class="data-list__row">
+            <dt class="data-list__label">Estado de la cuenta</dt>
+            <dd class="data-list__value">
+              <span class="status status--active" id="dato-estado-cuenta" role="status">
+                <span class="status__dot"></span>
+                Cargando…
+              </span>
+            </dd>
+          </div>
+        </dl>
+
+        <p class="perfil-card__hint">
+          <span class="material-symbols-outlined">info</span>
+          Para modificar sus datos personales, contacte al Comité de IAAS.
+        </p>
+      </section>
+
+      <div class="perfil-stack">
+        <section class="card perfil-card" aria-labelledby="password-title">
+          <header class="card__header">
+            <div>
+              <h2 class="card__title" id="password-title">Seguridad de la cuenta</h2>
+              <p class="card__subtitle">Cambie su contraseña periódicamente.</p>
+            </div>
+            <button type="button" class="btn btn--ghost" id="toggle-password-card" aria-expanded="false" aria-controls="password-form">
+              <span class="material-symbols-outlined" id="toggle-password-icon">lock_open</span>
+              <span class="btn__label">Cambiar contraseña</span>
+            </button>
+          </header>
+
+          <form class="password-form" id="password-form" novalidate hidden>
+            <div class="field">
+              <label class="field__label" for="current-password">Contraseña actual</label>
+              <div class="field__control">
+                <span class="material-symbols-outlined field__icon">lock</span>
+                <input id="current-password" name="current_password" type="password" class="field__input" autocomplete="current-password" required>
+                <button type="button" class="field__toggle" data-toggle="current-password" aria-label="Mostrar contraseña">
+                  <span class="material-symbols-outlined">visibility</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="new-password">Nueva contraseña</label>
+              <div class="field__control">
+                <span class="material-symbols-outlined field__icon">lock_reset</span>
+                <input id="new-password" name="new_password" type="password" class="field__input" autocomplete="new-password" required minlength="8">
+                <button type="button" class="field__toggle" data-toggle="new-password" aria-label="Mostrar contraseña">
+                  <span class="material-symbols-outlined">visibility</span>
+                </button>
+              </div>
+              <div class="password-meter" aria-live="polite">
+                <div class="password-meter__bar" id="password-strength-bar"></div>
+                <span class="password-meter__text" id="password-strength-text">Use al menos 8 caracteres. No necesita combinar mayúsculas, números ni símbolos.</span>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="confirm-password">Confirmar nueva contraseña</label>
+              <div class="field__control">
+                <span class="material-symbols-outlined field__icon">lock</span>
+                <input id="confirm-password" name="confirm_password" type="password" class="field__input" autocomplete="new-password" required>
+              </div>
+            </div>
+
+            <p class="form__message" id="password-message" role="alert" hidden></p>
+
+            <div class="password-form__actions">
+              <button type="button" class="btn btn--ghost" data-cancel-password>Cancelar</button>
+              <button type="submit" class="btn btn--primary" id="password-submit">
+                <span class="material-symbols-outlined">save</span>
+                Actualizar contraseña
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <section class="card perfil-card" id="activity-card" aria-labelledby="activity-title" hidden>
+          <header class="card__header">
+            <div>
+              <h2 class="card__title" id="activity-title">Mi actividad</h2>
+              <p class="card__subtitle">Resumen de su participación en auditorías.</p>
+            </div>
+          </header>
+
+          <div class="activity-stats">
+            <article class="activity-stat">
+              <span class="activity-stat__icon activity-stat__icon--primary">
+                <span class="material-symbols-outlined">groups</span>
+              </span>
+              <div>
+                <span class="activity-stat__value" id="stat-evaluaciones">—</span>
+                <span class="activity-stat__label">Evaluaciones realizadas</span>
+              </div>
+            </article>
+            <article class="activity-stat">
+              <span class="activity-stat__icon activity-stat__icon--tertiary">
+                <span class="material-symbols-outlined">checklist</span>
+              </span>
+              <div>
+                <span class="activity-stat__value" id="stat-sesiones">—</span>
+                <span class="activity-stat__label">Sesiones registradas</span>
+              </div>
+            </article>
+            <article class="activity-stat">
+              <span class="activity-stat__icon activity-stat__icon--alcohol">
+                <span class="material-symbols-outlined">fact_check</span>
+              </span>
+              <div>
+                <span class="activity-stat__value" id="stat-momentos">—</span>
+                <span class="activity-stat__label">Momentos observados</span>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="card perfil-card admin-shortcuts" id="admin-shortcuts-card" aria-labelledby="admin-shortcuts-title" hidden>
+          <header class="card__header">
+            <div>
+              <h2 class="card__title" id="admin-shortcuts-title">Panel de administración</h2>
+              <p class="card__subtitle">Accesos directos a las funciones de gestión.</p>
+            </div>
+          </header>
+
+          <div class="admin-shortcuts__grid">
+            <a class="admin-shortcut" href="admin.php">
+              <span class="material-symbols-outlined">shield_person</span>
+              <span>
+                <strong>Usuarios y solicitudes</strong>
+                <small>Aprobar cuentas y gestionar roles</small>
+              </span>
+            </a>
+            <a class="admin-shortcut" href="dashboard.html">
+              <span class="material-symbols-outlined">analytics</span>
+              <span>
+                <strong>Reportes y estadísticas</strong>
+                <small>Indicadores de cumplimiento OMS</small>
+              </span>
+            </a>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <section class="card perfil-card" id="history-card" aria-labelledby="history-title" hidden>
+      <header class="card__header">
+        <div>
+          <h2 class="card__title" id="history-title">Historial de sesiones</h2>
+          <p class="card__subtitle">Sesiones de auditoría registradas por usted.</p>
+        </div>
+      </header>
+
+      <div class="table-wrap">
+        <table class="table" id="history-table">
+          <thead>
+            <tr>
+              <th># Sesión</th>
+              <th>Fecha</th>
+              <th>Hora inicio</th>
+              <th>Hora fin</th>
+              <th>Área</th>
+              <th class="ta-c">Evaluaciones</th>
+              <th class="ta-c">Estado</th>
+            </tr>
+          </thead>
+          <tbody id="history-tbody">
+            <tr>
+              <td colspan="7" class="ta-c" style="color: var(--c-on-surface-var);">Cargando historial…</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="empty-state" id="history-empty" hidden>
+        <span class="material-symbols-outlined">history</span>
+        <p>Aún no ha registrado sesiones de auditoría.</p>
+      </div>
+
+      <p class="form__message" id="history-error" role="alert" hidden></p>
+    </section>
+  </main>
+
+  <script src="comun.js?v=20261105-2"></script>
+  <script src="perfil.js?v=20261111-1"></script>
+</body>
+</html>

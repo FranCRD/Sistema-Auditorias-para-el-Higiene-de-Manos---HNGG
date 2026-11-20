@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reportes y Estadísticas — Auditoría Higiene de Manos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="comun.css?v=20261105-4">
+  <link rel="stylesheet" href="dashboard.css?v=20261016-2">
+</head>
+<body>
+
+  <!-- ============ HEADER ============ -->
+  <header class="app-header">
+    <div class="app-header__inner">
+      <div class="brand">
+        <div class="brand__logo">
+          <img src="images/ccss.jpg" alt="CCSS">
+        </div>
+        <div class="brand__text">
+          <span class="brand__name">Auditoría de Higiene de Manos</span>
+          <span class="brand__tag">Higiene de Manos · OMS</span>
+        </div>
+      </div>
+
+      <button class="nav-mobile-toggle" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobile-nav-panel">
+        <span class="material-symbols-outlined">menu</span>
+      </button>
+
+      <nav class="header-navigation" aria-label="Navegación principal">
+        <a class="btn btn--ghost" href="home.html">
+          <span class="material-symbols-outlined">home</span>
+          <span class="btn__label">Inicio</span>
+        </a>
+        <a class="btn btn--ghost" href="index.html">
+          <span class="material-symbols-outlined">checklist</span>
+          <span class="btn__label">Observaciones</span>
+        </a>
+        <a class="btn btn--active" href="dashboard.html" aria-current="page">
+          <span class="material-symbols-outlined">analytics</span>
+          <span class="btn__label">Reportes</span>
+        </a>
+        <a class="btn btn--ghost" href="comparativa.html">
+          <span class="material-symbols-outlined">compare_arrows</span>
+          <span class="btn__label">Comparativa</span>
+        </a>
+        <a class="btn btn--ghost" href="admin.php" id="admin-link" hidden>
+          <span class="material-symbols-outlined">shield_person</span>
+          <span class="btn__label">Administración</span>
+        </a>
+        <a class="btn btn--ghost" href="perfil.html">
+          <span class="material-symbols-outlined">account_circle</span>
+          <span class="btn__label">Mi perfil</span>
+        </a>
+      </nav>
+      <div class="mobile-nav-panel" id="mobile-nav-panel" hidden></div>
+
+      <div class="header-profile">
+        <div class="user">
+          <span class="user__name" id="user-name">Usuario</span>
+          <div class="user__avatar">
+            <span class="material-symbols-outlined">person</span>
+          </div>
+          <button id="logout-btn" type="button" class="icon-btn" title="Cerrar sesión" aria-label="Cerrar sesión">
+            <span class="material-symbols-outlined">logout</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <p class="dashboard-load-error" id="dashboard-access-error" role="alert" hidden></p>
+
+  <main class="container" id="dashboard-content" hidden>
+    <p class="dashboard-load-error" id="dashboard-load-error" role="alert" hidden></p>
+
+    <section class="report-filters" aria-label="Filtros del reporte">
+      <label class="report-filter">
+        <span>Área</span>
+        <select id="report-area">
+          <option value="">Todas las áreas</option>
+          <option value="I Este">I Este</option>
+          <option value="II Este">II Este</option>
+          <option value="I Oeste">I Oeste</option>
+          <option value="II Oeste">II Oeste</option>
+          <option value="UCI">UCI</option>
+        </select>
+      </label>
+      <label class="report-filter">
+        <span>Desde</span>
+        <input id="report-date-from" type="date">
+      </label>
+      <label class="report-filter">
+        <span>Hasta</span>
+        <input id="report-date-to" type="date">
+      </label>
+      <p class="report-filter-hint">Sin fechas seleccionadas se muestra todo el historial.</p>
+      <p class="report-period-summary" id="report-period-summary" aria-live="polite"></p>
+    </section>
+
+    <div class="report-toolbar" aria-label="Acciones del reporte">
+      <button class="btn btn--ghost" type="button" id="export-pdf" title="Exportar a PDF">
+        <span class="material-symbols-outlined">picture_as_pdf</span>
+        <span class="btn__label">PDF</span>
+      </button>
+      <button class="btn btn--ghost" type="button" id="export-excel" title="Exportar a Excel">
+        <span class="material-symbols-outlined">table_view</span>
+        <span class="btn__label">Excel</span>
+      </button>
+    </div>
+
+    <section class="report-counts" aria-label="Cantidad de observaciones para los filtros actuales">
+      <article class="report-count">
+        <span class="material-symbols-outlined" aria-hidden="true">groups</span>
+        <span class="report-count__label">Evaluaciones de profesionales</span>
+        <strong class="report-count__value" id="report-professionals-count">0</strong>
+      </article>
+      <article class="report-count">
+        <span class="material-symbols-outlined" aria-hidden="true">fact_check</span>
+        <span class="report-count__label">Momentos con respuesta</span>
+        <strong class="report-count__value" id="report-actions-count">0</strong>
+      </article>
+    </section>
+
+    <!-- ============ 1. KPIs ============ -->
+    <section class="kpis">
+
+      <article class="kpi kpi--success">
+        <span class="kpi__label">Cumplimiento</span>
+        <div class="kpi__value">
+          <span class="kpi__number">—</span>
+          <span class="kpi__unit">%</span>
+        </div>
+        <div class="kpi__bar">
+          <div class="kpi__bar-fill" style="width: 0%"></div>
+        </div>
+        <span class="kpi__hint">—</span>
+      </article>
+
+      <article class="kpi kpi--error">
+        <span class="kpi__label">No realizado</span>
+        <div class="kpi__value">
+          <span class="kpi__number">—</span>
+          <span class="kpi__unit">%</span>
+        </div>
+        <div class="kpi__bar">
+          <div class="kpi__bar-fill" style="width: 0%"></div>
+        </div>
+        <span class="kpi__hint">—</span>
+      </article>
+
+      <article class="kpi kpi--warning">
+        <span class="kpi__label">Momento crítico</span>
+        <div class="kpi__value">
+          <span class="kpi__number">—</span>
+        </div>
+        <span class="kpi__hint kpi__hint--strong">—</span>
+        <span class="kpi__hint">—</span>
+      </article>
+
+    </section>
+
+    <!-- ============ 2. GRÁFICO DE MOMENTOS ============ -->
+    <section class="card">
+      <header class="card__header">
+        <div>
+          <h2 class="card__title">Cumplimiento por momento OMS</h2>
+          <p class="card__subtitle">Distribución de acciones observadas en los 5 momentos de higiene de manos.</p>
+        </div>
+        <ul class="legend">
+          <li class="legend__item"><span class="legend__dot legend__dot--wash"></span>Lavado</li>
+          <li class="legend__item"><span class="legend__dot legend__dot--alcohol"></span>Alcohol</li>
+          <li class="legend__item"><span class="legend__dot legend__dot--miss"></span>No realiza</li>
+        </ul>
+      </header>
+
+      <div class="chart" id="chart-moments">
+        <!-- Barras generadas por JS -->
+      </div>
+    </section>
+
+    <!-- ============ 3. ACCIONES POR CATEGORÍA PROFESIONAL ============ -->
+    <section class="card professional-actions-card">
+      <header class="card__header">
+        <div>
+          <h2 class="card__title">Acciones por categoría profesional</h2>
+          <p class="card__subtitle" id="professional-chart-subtitle">
+            Acciones registradas en los cinco momentos de higiene de manos.
+          </p>
+        </div>
+        <ul class="legend">
+          <li class="legend__item"><span class="legend__dot legend__dot--wash"></span>Lavado</li>
+          <li class="legend__item"><span class="legend__dot legend__dot--alcohol"></span>Solución alcohólica</li>
+          <li class="legend__item"><span class="legend__dot legend__dot--miss"></span>No realiza</li>
+        </ul>
+      </header>
+      <div class="professional-chart-wrap" id="professional-chart" role="img"
+        aria-label="Gráfica de acciones realizadas por categoría profesional y momento de higiene">
+      </div>
+      <footer class="card__footer">
+        <span class="material-symbols-outlined" aria-hidden="true">info</span>
+        Cada barra representa el número de observaciones para esa acción y momento.
+      </footer>
+    </section>
+
+    <!-- ============ 4. TABLA CONSOLIDADA ============ -->
+    <section class="card">
+      <header class="card__header">
+        <div>
+          <h2 class="card__title">Detalle por momento</h2>
+          <p class="card__subtitle">Número de observaciones por momento de higiene y acción realizada.</p>
+        </div>
+        <span class="chip chip--neutral" id="table-total-chip">Total: 0 obs.</span>
+      </header>
+
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Momento</th>
+              <th class="ta-c">Lavado</th>
+              <th class="ta-c">Solución de alcohol</th>
+              <th class="ta-c">No lo realiza</th>
+              <th class="ta-c">Total</th>
+            </tr>
+          </thead>
+          <tbody id="table-moments">
+            <!-- Filas generadas por JS -->
+          </tbody>
+          <tfoot id="table-moments-footer">
+            <!-- Totales y porcentajes generados por JS -->
+          </tfoot>
+        </table>
+      </div>
+
+      <footer class="card__footer">
+        <span class="material-symbols-outlined">info</span>
+        Fuente: Comité de IAAS HNGG
+      </footer>
+    </section>
+
+    <!-- ============ 4. DESGLOSE POR CATEGORÍA ============ -->
+    <section class="card" id="professional-category-card">
+      <header class="card__header">
+        <div>
+          <h2 class="card__title">Desglose por categoría profesional</h2>
+          <p class="card__subtitle">Detalle de acciones según el perfil profesional observado.</p>
+        </div>
+      </header>
+
+      <div class="interactive-category-content">
+        <div class="tabs" role="tablist">
+          <button class="tab is-active" data-tab="doctors" type="button" role="tab">Medicina</button>
+          <button class="tab" data-tab="nurses" type="button" role="tab">Enfermería</button>
+          <button class="tab" data-tab="techs" type="button" role="tab">Otros</button>
+        </div>
+
+        <!-- Selector de subcategoría -->
+        <div class="subcat-filter">
+          <label class="subcat-filter__label" for="subcat-select">
+            <span class="material-symbols-outlined">filter_list</span>
+            Subcategoría
+          </label>
+          <div class="subcat-filter__control">
+            <select id="subcat-select" class="subcat-filter__select">
+              <option value="__all__">Todas las subcategorías</option>
+            </select>
+            <span class="material-symbols-outlined subcat-filter__chevron">expand_more</span>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Momento</th>
+                <th class="ta-c">Lavado</th>
+                <th class="ta-c">Solución de alcohol</th>
+                <th class="ta-c">No lo realiza</th>
+                <th class="ta-c">Total</th>
+              </tr>
+            </thead>
+            <tbody id="table-category">
+              <!-- Filas generadas por JS -->
+            </tbody>
+            <tfoot id="table-category-footer">
+              <!-- Totales generados por JS -->
+            </tfoot>
+          </table>
+        </div>
+      </div>
+      <div class="print-category-tables" id="print-category-tables"></div>
+    </section>
+
+    <!-- ============ FOOTER ============ -->
+    <footer class="page-footer">
+      <span>Fuente: Comité de IAAS HNGG</span>
+      <span class="page-footer__sep">·</span>
+      <span id="report-footer-filter">Área: Todas las áreas · Periodo: Todo el historial</span>
+    </footer>
+
+  </main>
+
+  <!-- SheetJS para exportar a Excel -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+  <script src="comun.js?v=20261105-2"></script>
+  <script src="dashboard.js?v=20261108-5"></script>
+</body>
+</html>

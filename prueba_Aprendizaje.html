@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulo de Aprendizaje - HNGG</title>
+    <!-- Hoja de estilos externa -->
+    <link rel="stylesheet" href="aprendizaje.css">
+    <!-- Iconos de Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <!-- Header Principal -->
+    <header class="header-top">
+        <div class="header-brand">
+            <div class="header-title">
+                <h1>Hospital Nacional de Geriatría y Gerontología</h1>
+                <p>Auditoría de Higiene de Manos · Módulo de Aprendizaje</p>
+            </div>
+        </div>
+        <div class="user-badge">
+            <i data-lucide="user"></i>
+            <span>FrancoCordoba</span>
+        </div>
+    </header>
+
+    <!-- Contenido del Módulo -->
+    <main class="container">
+
+        <!-- Paso 1: Configuración del Curso -->
+        <div class="card">
+            <div class="card-header">
+                <h2>1. Información General del Curso / Capacitación</h2>
+                <p>Ingrese el título y contexto del módulo de higiene de manos.</p>
+            </div>
+            
+            <div class="form-group">
+                <label>Título del Curso</label>
+                <input type="text" class="form-control" placeholder="Ej: Estrategia Multimodal de Higiene de Manos - OMS">
+            </div>
+
+            <div class="form-group">
+                <label>Descripción / Objetivo</label>
+                <textarea class="form-control" rows="3" placeholder="Breve explicación del contenido del curso..."></textarea>
+            </div>
+        </div>
+
+        <!-- Paso 2: Formulario de Pregunta Individual -->
+        <div class="card">
+            <div class="card-header">
+                <h2>2. Agregar Pregunta a la Evaluación</h2>
+                <p>Escriba el enunciado, sus opciones y seleccione cuál es la respuesta correcta.</p>
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Enunciado de la Pregunta</label>
+                    <input type="text" class="form-control" placeholder="Ej: ¿Cuál es la duración mínima del lavado con agua y jabón?">
+                </div>
+                <div class="form-group">
+                    <label>Valor / Puntaje</label>
+                    <input type="number" class="form-control" value="1" min="1" style="width: 120px;">
+                </div>
+            </div>
+
+            <label style="font-size: 12px; font-weight: 700; color: var(--texto-mutado); text-transform: uppercase; display:block; margin-bottom: 8px;">
+                Opciones de Respuesta (Marque la opción correcta)
+            </label>
+
+            <!-- Opciones Fijas -->
+            <div class="opcion-row">
+                <input type="radio" name="correcta" value="A" checked>
+                <input type="text" class="form-control" placeholder="Opción A">
+            </div>
+
+            <div class="opcion-row">
+                <input type="radio" name="correcta" value="B">
+                <input type="text" class="form-control" placeholder="Opción B">
+            </div>
+
+            <div class="opcion-row">
+                <input type="radio" name="correcta" value="C">
+                <input type="text" class="form-control" placeholder="Opción C">
+            </div>
+
+            <div class="opcion-row">
+                <input type="radio" name="correcta" value="D">
+                <input type="text" class="form-control" placeholder="Opción D">
+            </div>
+
+            <div style="margin-top: 15px;">
+                <button type="button" class="btn-secondary">
+                    + Guardar esta pregunta y agregar otra
+                </button>
+            </div>
+        </div>
+
+        <!-- Acciones Finales -->
+        <div class="actions">
+            <button class="btn-primary">
+                <i data-lucide="check-circle"></i> Finalizar y Publicar Curso
+            </button>
+        </div>
+
+    </main>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

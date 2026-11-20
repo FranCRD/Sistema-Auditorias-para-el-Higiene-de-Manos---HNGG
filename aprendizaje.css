@@ -1,0 +1,191 @@
+:root {
+    --azul-primario: #006699;
+    --azul-hover: #004d73;
+    --bg-principal: #f4f7f9;
+    --blanco: #ffffff;
+    --texto-oscuro: #2c3e50;
+    --texto-mutado: #6c757d;
+    --borde-color: #e2e8f0;
+    --radius: 12px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--bg-principal);
+    color: var(--texto-oscuro);
+    padding-bottom: 40px;
+}
+
+/* Header Superior */
+.header-top {
+    background-color: var(--blanco);
+    border-bottom: 1px solid var(--borde-color);
+    padding: 12px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-brand img {
+    height: 35px;
+}
+
+.header-title h1 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--texto-oscuro);
+}
+
+.header-title p {
+    font-size: 12px;
+    color: var(--texto-mutado);
+}
+
+.user-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f0f4f8;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* Contenedor Principal */
+.container {
+    max-width: 1000px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+/* Tarjetas estilo HNGG */
+.card {
+    background: var(--blanco);
+    border-radius: var(--radius);
+    padding: 24px;
+    border: 1px solid var(--borde-color);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    margin-bottom: 20px;
+}
+
+.card-header {
+    margin-bottom: 20px;
+}
+
+.card-header h2 {
+    font-size: 18px;
+    color: var(--texto-oscuro);
+    margin-bottom: 4px;
+}
+
+.card-header p {
+    font-size: 13px;
+    color: var(--texto-mutado);
+}
+
+/* Formularios e Inputs */
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--texto-mutado);
+    margin-bottom: 6px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--borde-color);
+    border-radius: 8px;
+    font-size: 14px;
+    background-color: #f8fafc;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.form-control:focus {
+    border-color: var(--azul-primario);
+    background-color: var(--blanco);
+}
+
+/* Grilla de Opciones */
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* Opciones de Respuesta */
+.opcion-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    background: #f8fafc;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--borde-color);
+}
+
+.opcion-row input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--azul-primario);
+    cursor: pointer;
+}
+
+/* Botones */
+.btn-primary {
+    background-color: var(--azul-primario);
+    color: var(--blanco);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s;
+}
+
+.btn-primary:hover {
+    background-color: var(--azul-hover);
+}
+
+.btn-secondary {
+    background-color: #e2e8f0;
+    color: var(--texto-oscuro);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 20px;
+}

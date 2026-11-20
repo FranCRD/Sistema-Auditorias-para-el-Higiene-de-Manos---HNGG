@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Observación Higiene de Manos — Sesión Activa</title>
+  <script>
+    if (!sessionStorage.getItem("hm_user")) {
+      window.location.replace("login.html");
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&family=Plus+Jakarta+Sans:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="comun.css?v=20261105-4">
+  <link rel="stylesheet" href="index.css?v=20261016-2">
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="app-header__inner">
+      <div class="brand">
+        <div class="brand__logo">
+          <img src="images/ccss.jpg" alt="CCSS">
+        </div>
+        <div class="brand__text">
+          <span class="brand__name">Auditoría de Higiene de Manos</span>
+          <span class="brand__tag">Higiene de Manos · OMS</span>
+        </div>
+      </div>
+
+      <button class="nav-mobile-toggle" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobile-nav-panel">
+        <span class="material-symbols-outlined">menu</span>
+      </button>
+
+      <nav class="header-navigation" aria-label="Navegación principal">
+        <a class="btn btn--ghost" href="home.html">
+          <span class="material-symbols-outlined">home</span>
+          <span class="btn__label">Inicio</span>
+        </a>
+        <a class="btn btn--active" href="index.html" aria-current="page">
+          <span class="material-symbols-outlined">checklist</span>
+          <span class="btn__label">Observaciones</span>
+        </a>
+        <a class="btn btn--ghost" href="dashboard.html" id="dashboard-link" hidden>
+          <span class="material-symbols-outlined">analytics</span>
+          <span class="btn__label">Reportes</span>
+        </a>
+        <a class="btn btn--ghost" href="admin.php" id="admin-link" hidden>
+          <span class="material-symbols-outlined">shield_person</span>
+          <span class="btn__label">Administración</span>
+        </a>
+        <a class="btn btn--ghost" href="perfil.html">
+          <span class="material-symbols-outlined">account_circle</span>
+          <span class="btn__label">Mi perfil</span>
+        </a>
+      </nav>
+      <div class="mobile-nav-panel" id="mobile-nav-panel" hidden></div>
+
+    <div class="header-profile">
+      <div class="user">
+        <span class="user__name" id="user-name">Usuario</span>
+        <div class="user__avatar">
+          <span class="material-symbols-outlined">person</span>
+        </div>
+        <button id="logout-btn" type="button" class="icon-btn" title="Cerrar sesión" aria-label="Cerrar sesión">
+          <span class="material-symbols-outlined">logout</span>
+        </button>
+      </div>
+    </div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- ============ RESUMEN EN TIEMPO REAL ============ -->
+    <section class="summary">
+      <div class="summary__item">
+        <span class="material-symbols-outlined summary__icon summary__icon--primary">group</span>
+        <div class="summary__text">
+          <span class="summary__label">Evaluaciones</span>
+          <span class="summary__value" id="stat-evaluaciones">0</span>
+        </div>
+      </div>
+      <div class="summary__item">
+        <span class="material-symbols-outlined summary__icon summary__icon--alcohol">fact_check</span>
+        <div class="summary__text">
+          <span class="summary__label">Momentos observados</span>
+          <span class="summary__value" id="stat-momentos">0 / 0</span>
+        </div>
+      </div>
+      <div class="summary__progress">
+        <div class="summary__text summary__text--right">
+          <span class="summary__label">Cumplimiento observado</span>
+          <span class="summary__value summary__value--tertiary" id="stat-cumplimiento">—</span>
+        </div>
+        <div class="progressbar">
+          <div class="progressbar__fill progressbar__fill--tertiary" id="stat-bar-tertiary" style="width: 0%"></div>
+          <div class="progressbar__fill progressbar__fill--error" id="stat-bar-error" style="width: 0%"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SELECTOR DE ÁREA ============ -->
+    <section class="session-area">
+      <label class="session-area__label" for="area-select">
+        <span class="material-symbols-outlined">location_on</span>
+        Área de atención
+      </label>
+      <div class="session-area__control">
+        <select id="area-select" class="session-area__select">
+          <option value="" disabled selected>Seleccione un área</option>
+          <option value="I Este">I Este</option>
+          <option value="II Este">II Este</option>
+          <option value="I Oeste">I Oeste</option>
+          <option value="II Oeste">II Oeste</option>
+          <option value="UCI">UCI</option>
+        </select>
+        <span class="material-symbols-outlined session-area__chevron">expand_more</span>
+      </div>
+    </section>
+
+    <!-- ============ NAVEGACIÓN ENTRE EVALUACIONES ============ -->
+    <section class="nav-bar">
+      <button class="nav-bar__btn" id="nav-prev" type="button" title="Evaluación anterior" disabled>
+        <span class="material-symbols-outlined">chevron_left</span>
+      </button>
+      <span class="nav-bar__counter" id="nav-counter">Evaluación 0 de 0</span>
+      <button class="nav-bar__btn" id="nav-next" type="button" title="Evaluación siguiente" disabled>
+        <span class="material-symbols-outlined">chevron_right</span>
+      </button>
+      <button class="btn-add" id="btn-add-eval" type="button">
+        <span class="material-symbols-outlined">add_circle</span>
+        Nueva evaluación
+      </button>
+    </section>
+
+    <!-- ============ FICHA ACTIVA ============ -->
+    <section id="ficha-container" class="ficha-container">
+      <!-- Se renderiza dinámicamente desde app.js -->
+    </section>
+
+  </main>
+
+  <!-- ============ FOOTER FIJO ============ -->
+  <footer class="app-footer">
+    <div class="app-footer__inner">
+      <span class="app-footer__hint" id="save-status">Cambios se guardan automáticamente</span>
+      <div class="app-footer__actions">
+        <button class="btn btn--ghost" type="button" id="btn-cancel">
+          <span class="material-symbols-outlined">delete</span>
+          Descartar evaluación
+        </button>
+        <button class="btn btn--primary" type="button" id="btn-finish">
+          <span class="material-symbols-outlined">verified</span>
+          Finalizar sesión
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <dialog class="finish-dialog" id="finish-dialog" aria-labelledby="finish-dialog-title">
+    <div class="finish-dialog__view" id="finish-confirm-view">
+      <div class="finish-dialog__content">
+        <div class="finish-dialog__icon" aria-hidden="true">
+          <span class="material-symbols-outlined">fact_check</span>
+        </div>
+        <p class="finish-dialog__eyebrow">Resumen de observación</p>
+        <h2 class="finish-dialog__title" id="finish-dialog-title">¿Finalizar esta sesión?</h2>
+        <p class="finish-dialog__description">
+          Al finalizar, las evaluaciones se conservarán y esta sesión ya no se podrá modificar.
+          Luego podrás consultar los reportes; al volver a Observaciones se iniciará una sesión nueva.
+        </p>
+
+        <div class="finish-dialog__summary" id="finish-summary">
+          <div class="finish-dialog__stat">
+            <span class="finish-dialog__stat-value" id="finish-evaluations-count">0</span>
+            <span class="finish-dialog__stat-label">evaluaciones</span>
+          </div>
+          <div class="finish-dialog__stat finish-dialog__stat--observed">
+            <span class="finish-dialog__stat-value" id="finish-observed-count">0</span>
+            <span class="finish-dialog__stat-label">momentos observados</span>
+          </div>
+          <div class="finish-dialog__stat finish-dialog__stat--unobserved">
+            <span class="finish-dialog__stat-value" id="finish-unobserved-count">0</span>
+            <span class="finish-dialog__stat-label">sin observar</span>
+          </div>
+        </div>
+
+        <p class="finish-dialog__note" id="finish-empty-message" hidden>
+          Todavía no hay evaluaciones registradas. Agrega al menos una antes de finalizar la sesión.
+        </p>
+        <p class="finish-dialog__note">
+          Los momentos sin respuesta quedan como no observados. No es necesario completar los cinco
+          y esos momentos no se incluyen en el cálculo del cumplimiento.
+        </p>
+        <p class="finish-dialog__error" id="finish-error" role="alert" hidden></p>
+      </div>
+    </div>
+    <div class="finish-dialog__view finish-dialog__thank-you" id="finish-thank-you-view" hidden>
+      <div class="finish-dialog__content">
+        <div class="finish-dialog__icon finish-dialog__icon--success" aria-hidden="true">
+          <span class="material-symbols-outlined">check_circle</span>
+        </div>
+        <p class="finish-dialog__eyebrow">Sesión finalizada</p>
+        <h2 class="finish-dialog__title" id="thank-you-title">¡Gracias por tu valiosa colaboración!</h2>
+        <img
+          class="finish-dialog__illustration"
+          src="images/agradecimiento-sesion.jpg"
+          alt="Dos profesionales de enfermería celebran juntas su trabajo."
+          width="768"
+          height="998">
+        <p class="finish-dialog__thank-you-message">
+          Te agradecemos por ayudarnos a recaudar la información. Tu aporte es muy valioso para nosotros.
+        </p>
+        <p class="finish-dialog__saved">
+          <span class="material-symbols-outlined" aria-hidden="true">verified</span>
+          Tus observaciones se guardaron correctamente.
+        </p>
+      </div>
+    </div>
+    <footer class="finish-dialog__actions" id="finish-confirm-actions">
+      <button class="btn btn--ghost" type="button" id="finish-cancel">Seguir observando</button>
+      <button class="btn btn--primary" type="button" id="finish-confirm">
+        <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
+        Finalizar sesión
+      </button>
+    </footer>
+    <footer class="finish-dialog__actions" id="finish-thank-you-actions" hidden>
+      <a class="btn btn--ghost" id="thank-you-reports" href="dashboard.html" hidden>
+        <span class="material-symbols-outlined" aria-hidden="true">analytics</span>
+        Consultar reportes
+      </a>
+      <button class="btn btn--primary" type="button" id="thank-you-return">
+        <span class="material-symbols-outlined" aria-hidden="true">assignment</span>
+        Volver a observaciones
+      </button>
+    </footer>
+  </dialog>
+
+  <script src="comun.js?v=20261105-2"></script>
+  <script src="app.js?v=20261016-4"></script>
+</body>
+</html>

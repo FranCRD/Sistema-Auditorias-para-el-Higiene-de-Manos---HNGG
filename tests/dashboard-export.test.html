@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prueba de exportacion Excel</title>
+  <link rel="stylesheet" href="../comun.css?v=20261015-2">
+  <link rel="stylesheet" href="../dashboard.css?v=20261016-2">
+  <script>sessionStorage.setItem("hm_user", "{}"); window.SKIP_DASHBOARD_INIT = true;</script>
+  <script src="../comun.js?v=20261012-1"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+  <script src="../dashboard.js?v=20261110-2"></script>
+</head>
+<body>
+  <h1>Prueba de exportacion Excel</h1>
+  <pre id="results">Ejecutando...</pre>
+  <button type="button" id="export-pdf">PDF</button>
+  <button type="button" id="export-excel">Excel</button>
+  <table>
+    <tbody id="table-moments"></tbody>
+    <tfoot id="table-moments-footer"></tfoot>
+  </table>
+  <span id="table-total-chip"></span>
+  <select id="report-area">
+    <option value="">Todas las áreas</option>
+    <option value="Prueba">Prueba</option>
+  </select>
+  <p id="professional-chart-subtitle"></p>
+  <p id="report-footer-filter"></p>
+  <p id="report-period-summary"></p>
+  <span id="report-professionals-count"></span>
+  <span id="report-actions-count"></span>
+  <div class="professional-chart-wrap" id="professional-chart"></div>
+  <div class="interactive-category-content">
+    <table>
+      <tbody id="table-category"></tbody>
+      <tfoot id="table-category-footer"></tfoot>
+    </table>
+  </div>
+  <div class="print-category-tables" id="print-category-tables"></div>
+  <script>
+    const results = [];
+    const assertEqual = (label, actual, expected) => {
+      if (actual !== expected) throw new Error(`${label}: esperado ${expected}, recibido ${actual}`);
+      results.push(`OK ${label}`);
+    };
+    const assertThrows = (label, run) => {
+      try {
+        run();
+      } catch (error) {
+        results.push(`OK ${label}`);
+        return;
+      }
+      throw new Error(`${label}: se esperaba una inconsistencia`);
+    };
+
+    window.addEventListener("load", async () => {
+      try {
+        let printCalls = 0;
+        const originalPrint = window.print;
+        const originalAlert = window.alert;
+        window.print = () => { printCalls++; };
+        let alertMessage = "";
+        window.alert = (message) => { alertMessage = message; };
+        setupExportPDF();
+        setupExportExcel();
+        document.getElementById("export-pdf").click();
+        assertEqual("botón PDF responde al cargarse la página", printCalls, 1);
+        document.getElementById("export-excel").click();
+        assertEqual("botón Excel informa si los datos aún no cargan",
+          alertMessage.includes("Aún no hay datos cargados"), true);
+        window.print = originalPrint;
+        window.alert = originalAlert;
+
+        const confirmationCancelled = confirmarAccion({
+          titulo: "Prueba cancelar",
+          mensaje: "Este cambio no se aplicará."
+        });
+        assertEqual("el diálogo personalizado se abre", document.getElementById("action-confirm-dialog").open, true);
+        document.querySelector("[data-confirm-cancel]").click();
+        assertEqual("cancelar cierra sin confirmar", await confirmationCancelled, false);
+        const confirmationAccepted = confirmarAccion({
+          titulo: "Prueba confirmar",
+          mensaje: "Confirmación de prueba."
+        });
+        document.querySelector("[data-confirm-accept]").click();
+        assertEqual("aceptar confirma la acción", await confirmationAccepted, true);
+
+        const svgImage = await svgGraficaAImagen(
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 480"><rect width="1100" height="480" fill="#fff"/></svg>'
+        );
+        const decodedSvgImage = new Image();
+        await new Promise((resolve, reject) => {
+          decodedSvgImage.onload = resolve;
+          decodedSvgImage.onerror = reject;
+          decodedSvgImage.src = svgImage;
+        });
+        assertEqual("la imagen de resumen conserva la proporción del SVG",
+          `${decodedSvgImage.naturalWidth}x${decodedSvgImage.naturalHeight}`, "1800x785");
+
+        const moments = () => ({
+          1: { lavado: 1, alcohol: 1, noRealiza: 0 },
+          2: { lavado: 0, alcohol: 1, noRealiza: 1 },
+          3: { lavado: 1, alcohol: 0, noRealiza: 2 },
+          4: { lavado: 0, alcohol: 1, noRealiza: 1 },
+          5: { lavado: 0, alcohol: 0, noRealiza: 1 }
+        });
+        const categories = {
+          Medicina: {
+            1: { lavado: 1, alcohol: 0, noRealiza: 0 },
+            2: { lavado: 0, alcohol: 1, noRealiza: 1 }
+          },
+          "Enfermería": {
+            1: { lavado: 0, alcohol: 1, noRealiza: 0 },
+            3: { lavado: 1, alcohol: 0, noRealiza: 2 },
+            4: { lavado: 0, alcohol: 1, noRealiza: 1 }
+          },
+          Otros: {
+            5: { lavado: 0, alcohol: 0, noRealiza: 1 }
+          }
+        };
+
+        DATOS = {
+          porArea: {
+            Prueba: {
+              porMomento: moments(),
+              porCategoria: categories,
+              totalLavado: 2,
+              totalAlcohol: 3,
+              totalNoRealiza: 5,
+              profesionalesEvaluados: 2,
+              momentosRespondidos: 10
+            }
+          }
+        };
+        DATOS.porMomento = moments();
+        DATOS.filtros = { area: "", desde: "2026-01-01", hasta: "2026-06-30" };
+        renderMomentsTable();
+        assertEqual("el detalle consolidado se renderiza sin error",
+          document.querySelectorAll("#table-moments tr").length, 5);
+        assertEqual("total porcentual consolidado", 
+          document.querySelector("#table-moments-footer tr:last-child td:last-child").textContent.trim(), "100%");
+        assertEqual("total de observaciones consolidado", document.getElementById("table-total-chip").textContent,
+          "Total: 10 obs.");
+        renderProfessionalChart();
+        assertEqual("la gráfica profesional se renderiza como SVG",
+          document.querySelector("#professional-chart svg") !== null, true);
+        assertEqual("la gráfica muestra las categorías profesionales",
+          document.querySelector("#professional-chart").textContent.includes("Medicina") &&
+          document.querySelector("#professional-chart").textContent.includes("Enfermería") &&
+          document.querySelector("#professional-chart").textContent.includes("Otros"), true);
+        assertEqual("la gráfica refleja el periodo activo",
+          document.getElementById("report-footer-filter").textContent.includes("01/01/2026 al 30/06/2026"), true);
+        assertEqual("el PDF muestra la cantidad de evaluaciones y momentos del filtro",
+          document.querySelector("#professional-chart svg").textContent.includes(
+            "Evaluaciones de profesionales: 2 · Momentos con respuesta: 10"
+          ), true);
+        assertEqual("periodo sin fechas representa todo el historial",
+          etiquetaPeriodo({ desde: "", hasta: "" }), "Todo el historial");
+        assertEqual("la gráfica por área obtiene los conteos de la categoría seleccionada",
+          datosCategoriasParaGrafica("Prueba").Medicina[1].lavado, 1);
+        assertEqual("la gráfica muestra el total de evaluaciones de profesionales",
+          metricasReporteParaArea("Prueba").profesionalesEvaluados, 2);
+        assertEqual("la gráfica muestra los momentos respondidos",
+          metricasReporteParaArea("Prueba").momentosRespondidos, 10);
+        assertEqual("el panel enseña el total de evaluaciones",
+          document.getElementById("report-professionals-count").textContent, "2");
+        assertEqual("el panel enseña el total de momentos respondidos",
+          document.getElementById("report-actions-count").textContent, "10");
+
+        const areaCategoryData = DATOS.porCategoria;
+        DATOS.porCategoria = Object.fromEntries(Object.entries(categories)
+          .map(([category, data]) => [category, { consolidado: data }]));
+        renderCategoryTable("doctors");
+        assertEqual("la tabla interactiva de Medicina se muestra", 
+          document.querySelectorAll("#table-category tr").length, 5);
+        assertEqual("el total de Medicina se muestra", 
+          document.querySelector("#table-category-footer td:last-child").textContent, "3");
+        renderCategoryTable("nurses");
+        assertEqual("la tabla interactiva de Enfermería cambia al seleccionar categoría",
+          document.querySelector("#table-category-footer td:last-child").textContent, "6");
+        renderCategoryPrintTables();
+        assertEqual("el reporte PDF genera una tabla por categoría",
+          document.querySelectorAll("#print-category-tables .print-category-table").length, 3);
+        assertEqual("la tabla de Medicina contiene sus datos",
+          document.querySelector("#print-category-tables").textContent.includes("Medicina") &&
+          document.querySelector("#print-category-tables").textContent.includes("Antes del contacto"), true);
+        assertEqual("categoría con observaciones informa 100 por ciento",
+          document.querySelectorAll("#print-category-tables .print-category-table")[2]
+            .querySelector("tfoot tr:last-child td:last-child").textContent.trim(), "100%");
+        const categoryWithoutObservations = { consolidado: {} };
+        DATOS.porCategoria.Otros = categoryWithoutObservations;
+        renderCategoryPrintTables();
+        assertEqual("categoría sin observaciones informa 0 por ciento",
+          document.querySelectorAll("#print-category-tables .print-category-table")[2]
+            .querySelector("tfoot tr:last-child td:last-child").textContent.trim(), "0%");
+        DATOS.porCategoria["Nueva categoría"] = categoryWithoutObservations;
+        renderCategoryPrintTables();
+        assertEqual("el PDF incluye categorías agregadas en los datos",
+          document.querySelectorAll("#print-category-tables .print-category-table").length, 4);
+        assertEqual("el PDF muestra el nombre de la nueva categoría",
+          document.querySelector("#print-category-tables").textContent.includes("Nueva categoría"), true);
+        DATOS.porCategoria = areaCategoryData;
+
+        const workbook = new ExcelJS.Workbook();
+        const sheet = workbook.addWorksheet("Prueba");
+        sheet.columns = Array.from({ length: 30 }, () => ({ width: 10 }));
+        construirHojaArea(sheet, "Prueba");
+
+        assertEqual("conteo de cumplimiento", sheet.getCell("C5").value, 5);
+        assertEqual("conteo de incumplimiento", sheet.getCell("C6").value, 5);
+        assertEqual("porcentaje de cumplimiento numerico", sheet.getCell("D5").value, 0.5);
+        assertEqual("formato de porcentaje de cumplimiento", sheet.getCell("D5").numFmt, "0%");
+        assertEqual("porcentaje de incumplimiento numerico", sheet.getCell("D6").value, 0.5);
+        assertEqual("conteo de cumplimiento no tiene formato porcentual", sheet.getCell("C5").numFmt, "0");
+        assertEqual("total expresado como proporcion", sheet.getCell("D7").value, 1);
+        assertEqual("momento conserva el numero 1", sheet.getCell("B15").value, 1);
+        assertEqual("conteo por momento conserva el numero", sheet.getCell("C15").value, 1);
+        assertEqual("formato de conteo", sheet.getCell("C15").numFmt, "0");
+
+        const areasOriginales = DATOS.porArea;
+        DATOS.porArea = { ...areasOriginales, "Prueba 2": JSON.parse(JSON.stringify(areasOriginales.Prueba)) };
+        const conglomerado = consolidarAreasParaExcel(["Prueba", "Prueba 2"]);
+        assertEqual("el conglomerado suma los totales de las áreas", conglomerado.totalLavado, 4);
+        assertEqual("el conglomerado suma profesionales evaluados", conglomerado.profesionalesEvaluados, 4);
+        assertEqual("el conglomerado suma momentos respondidos", conglomerado.momentosRespondidos, 20);
+        assertEqual("el conglomerado suma categorías profesionales",
+          conglomerado.porCategoria.Medicina[1].lavado, 2);
+
+        assertEqual("porcentaje lavado numerico", sheet.getCell("C21").value, 0.2);
+        assertEqual("porcentaje fila total formateado", sheet.getCell("C21").numFmt, "0%");
+        assertEqual("porcentaje alcohol numerico", sheet.getCell("D21").value, 0.3);
+        assertEqual("porcentaje no realizado numerico", sheet.getCell("E21").value, 0.5);
+        assertEqual("total porcentual de fila", sheet.getCell("F21").value, 1);
+        assertEqual("categoria y matriz coinciden", sheet.getCell("P5").value, 1);
+        assertEqual("total por categoría y momento", sheet.getCell("P8").value, 1);
+        assertEqual("total de categoria coincide con sus observaciones", sheet.getCell("L24").value, 6);
+        assertEqual("porcentaje categorial numerico", sheet.getCell("I25").value, 1 / 6);
+        assertEqual("categorias suman el total del área",
+          sheet.getCell("L10").value + sheet.getCell("L24").value + sheet.getCell("L39").value,
+          sheet.getCell("F20").value);
+        assertEqual("matriz por momento suma el total consolidado",
+          sheet.getCell("P8").value + sheet.getCell("U8").value + sheet.getCell("Z8").value,
+          sheet.getCell("F15").value);
+        await insertarGraficaProfesionalEnHoja(workbook, sheet, "Prueba", "01/01/2026 al 30/06/2026");
+        assertEqual("la hoja de Excel incluye la gráfica profesional",
+          sheet.getImages().length, 1);
+        assertEqual("Excel incluye el total de evaluaciones en el resumen",
+          sheet.getCell("O10").value.includes("Evaluaciones de profesionales: 2"), true);
+        assertEqual("la gráfica exportada muestra el total de momentos respondidos",
+          sheet.getImages().length === 1 &&
+          sheet.getCell("O10").value.includes("Momentos con respuesta: 10"), true);
+        const inconsistentData = JSON.parse(JSON.stringify(DATOS.porArea.Prueba));
+        inconsistentData.porCategoria.Medicina[1].lavado = 0;
+        assertThrows("rechaza datos que no cuadran por categoría",
+          () => validarDatosAreaParaExcel(inconsistentData, "Prueba"));
+
+        const exported = await workbook.xlsx.writeBuffer();
+        const reloadedWorkbook = new ExcelJS.Workbook();
+        await reloadedWorkbook.xlsx.load(exported);
+        const exportedSheet = reloadedWorkbook.getWorksheet("Prueba");
+        assertEqual("archivo exportado conserva conteos", exportedSheet.getCell("C5").value, 5);
+        assertEqual("archivo exportado conserva porcentaje numerico", exportedSheet.getCell("D5").value, 0.5);
+        assertEqual("archivo exportado conserva formato porcentual", exportedSheet.getCell("D5").numFmt, "0%");
+        assertEqual("archivo exportado conserva numero de momento", exportedSheet.getCell("B15").value, 1);
+
+        const areasConfiguradas = DATOS.areas;
+        const filtrosConfigurados = DATOS.filtros;
+        const workbookConstructor = ExcelJS.Workbook;
+        const anchorClick = HTMLAnchorElement.prototype.click;
+        const svgGraficaAImagenOriginal = svgGraficaAImagen;
+        const alertOriginal = window.alert;
+        let libroExportado;
+        let archivoExcelExportado;
+        let archivoDescargado = "";
+        let mensajeExportacion = "";
+        const graficasGeneradas = [];
+        const imagenPrueba = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/OVsAAAAASUVORK5CYII=";
+        try {
+          DATOS.areas = ["Prueba", "Prueba 2"];
+          DATOS.filtros = { area: "", desde: "2026-01-01", hasta: "2026-06-30" };
+          ExcelJS.Workbook = class extends workbookConstructor {
+            constructor(...args) {
+              super(...args);
+              libroExportado = this;
+              const escribirBuffer = this.xlsx.writeBuffer.bind(this.xlsx);
+              this.xlsx.writeBuffer = async (...argumentos) => {
+                archivoExcelExportado = await escribirBuffer(...argumentos);
+                return archivoExcelExportado;
+              };
+            }
+          };
+          HTMLAnchorElement.prototype.click = function () { archivoDescargado = this.download; };
+          window.svgGraficaAImagen = async (svg) => {
+            graficasGeneradas.push(svg);
+            return imagenPrueba;
+          };
+          window.alert = (message) => { mensajeExportacion = message; };
+
+          document.getElementById("export-excel").click();
+          const limite = Date.now() + 15000;
+          while (!archivoDescargado && Date.now() < limite) {
+            await new Promise((resolve) => setTimeout(resolve, 25));
+          }
+          assertEqual("la exportación completa la descarga", archivoDescargado !== "", true);
+          assertEqual("el nombre descargado corresponde a todas las áreas",
+            archivoDescargado.includes("Todas_las_areas"), true);
+          assertEqual("la exportación no informa errores", mensajeExportacion, "");
+          assertEqual("el conglomerado es la última hoja del libro",
+            libroExportado.worksheets[libroExportado.worksheets.length - 1].name, "Conglomerado");
+          assertEqual("la exportación genera un archivo Excel no vacío", archivoExcelExportado.byteLength > 0, true);
+          assertEqual("el conglomerado incluye la gráfica profesional y cinco gráficas de resumen",
+            libroExportado.getWorksheet("Conglomerado").getImages().length, 6);
+          const anclajesEsperados = [
+            [14, 10, 950, 380],
+            [1, 43, 860, 375],
+            [16, 43, 860, 375],
+            [1, 63, 860, 375],
+            [16, 63, 860, 375],
+            [8, 83, 860, 375]
+          ];
+          const obtenerAnclajesGraficas = (worksheet) => worksheet.getImages().map(({ range }) => [
+              range.tl.col, range.tl.row,
+              range.ext.width, range.ext.height
+          ]);
+          const hojaConglomerado = libroExportado.getWorksheet("Conglomerado");
+          const anclajesGraficas = obtenerAnclajesGraficas(hojaConglomerado);
+          assertEqual("las gráficas del conglomerado conservan tamaño proporcional y posición",
+            JSON.stringify(anclajesGraficas), JSON.stringify(anclajesEsperados));
+          assertEqual("cada gráfica mantiene la proporción de su SVG",
+            anclajesGraficas.every(([, , width, height], index) => {
+              const [, svgWidth, svgHeight] = graficasGeneradas[index + 2]
+                .match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/);
+              return Math.abs(width / height - Number(svgWidth) / Number(svgHeight)) < 0.01;
+            }), true);
+          assertEqual("el área conserva su hoja individual",
+            libroExportado.getWorksheet("Prueba 2") !== undefined, true);
+          assertEqual("el conglomerado fija el área de impresión",
+            libroExportado.getWorksheet("Conglomerado").pageSetup.printArea, "B2:AD102");
+          assertEqual("el resumen del conglomerado suma las dos áreas",
+            libroExportado.getWorksheet("Conglomerado").getCell("C5").value, 10);
+          assertEqual("la gráfica profesional del conglomerado informa evaluaciones acumuladas",
+            libroExportado.getWorksheet("Conglomerado").getCell("O10").value
+              .includes("Evaluaciones de profesionales: 4"), true);
+          assertEqual("el gráfico porcentual de acciones incluye ambas áreas y sus tres series",
+            graficasGeneradas[5].includes("Prueba") && graficasGeneradas[5].includes("Prueba 2") &&
+              graficasGeneradas[5].includes("Lavado") &&
+              graficasGeneradas[5].includes("Solución alcohólica") &&
+              graficasGeneradas[5].includes("No realiza"), true);
+          assertEqual("el gráfico de acciones por área muestra los porcentajes calculados",
+            graficasGeneradas[5].includes("20%") &&
+              graficasGeneradas[5].includes("30%") &&
+              graficasGeneradas[5].includes("50%"), true);
+          assertEqual("el gráfico de acciones por categoría incluye sus tres categorías",
+            graficasGeneradas[7].includes("Medicina") &&
+              graficasGeneradas[7].includes("Enfermería") &&
+              graficasGeneradas[7].includes("Otros"), true);
+          assertEqual("el gráfico de acciones por categoría muestra sus porcentajes",
+            graficasGeneradas[7].includes("33.3%") &&
+              graficasGeneradas[7].includes("16.7%") &&
+              graficasGeneradas[7].includes("100%"), true);
+
+          const libroReabierto = new workbookConstructor();
+          await libroReabierto.xlsx.load(archivoExcelExportado);
+          assertEqual("el archivo Excel final conserva al conglomerado como última hoja",
+            libroReabierto.worksheets[libroReabierto.worksheets.length - 1].name, "Conglomerado");
+          assertEqual("el archivo Excel final conserva el total consolidado",
+            libroReabierto.getWorksheet("Conglomerado").getCell("C5").value, 10);
+          assertEqual("el archivo Excel final conserva las seis gráficas del conglomerado",
+            libroReabierto.getWorksheet("Conglomerado").getImages().length, 6);
+          assertEqual("el archivo Excel conserva posiciones y proporciones de las gráficas",
+            JSON.stringify(obtenerAnclajesGraficas(libroReabierto.getWorksheet("Conglomerado"))),
+            JSON.stringify(anclajesEsperados));
+        } finally {
+          DATOS.porArea = areasOriginales;
+          DATOS.areas = areasConfiguradas;
+          DATOS.filtros = filtrosConfigurados;
+          ExcelJS.Workbook = workbookConstructor;
+          HTMLAnchorElement.prototype.click = anchorClick;
+          window.svgGraficaAImagen = svgGraficaAImagenOriginal;
+          window.alert = alertOriginal;
+        }
+
+        document.getElementById("results").textContent = results.join("\n");
+      } catch (error) {
+        document.getElementById("results").textContent = `FALLO: ${error.message}`;
+        throw error;
+      }
+    });
+  </script>
+</body>
+</html>
